@@ -1,0 +1,64 @@
+ import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
+public class LoginPanel {
+    private ArrayList<User> users;
+
+    public LoginPanel() {
+        users = new ArrayList<>();
+        users.add(new User("admin", "admin123", "admin"));
+        users.add(new User("customer", "cust123", "customer"));
+    }
+
+    public void showLoginScreen() {
+        JFrame frame = new JFrame("Online Book Store - Login");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel panel = new JPanel(new GridLayout(3, 2));
+        JLabel userLabel = new JLabel("Username:");
+        JTextField userText = new JTextField();
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordText = new JPasswordField();
+
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener((ActionEvent e) -> {
+            String username = userText.getText();
+            String password = new String(passwordText.getPassword());
+            User user = validateUser(username, password);
+
+            if (user != null) {
+                frame.dispose();
+                if (user.getRole().equals("admin")) {
+                    AdminPanel adminPanel = new AdminPanel();
+                    adminPanel.showAdminPanel();
+                } else {
+                    CustomerPanel customerPanel = new CustomerPanel();
+                    customerPanel.showCustomerPanel();
+                }
+            } else {
+                JOptionPane.showMessageDialog(frame, "Invalid credentials!");
+            }
+        });
+
+        panel.add(userLabel);
+        panel.add(userText);
+        panel.add(passwordLabel);
+        panel.add(passwordText);
+        panel.add(loginButton);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+
+    private User validateUser(String username, String password) {
+        for (User user : users) {
+            if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                return user;
+            }
+        }
+        return null;
+    }
+}
