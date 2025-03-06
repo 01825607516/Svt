@@ -1,0 +1,54 @@
+ import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+
+public class AdminPanel {
+    private ArrayList<Book> books;
+
+    public AdminPanel() {
+        books = new ArrayList<>();
+    }
+
+    public void showAdminPanel() {
+        JFrame frame = new JFrame("Admin Panel");
+        frame.setSize(600, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        DefaultListModel<String> bookListModel = new DefaultListModel<>();
+        JList<String> bookList = new JList<>(bookListModel);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton addButton = new JButton("Add Book");
+        JButton deleteButton = new JButton("Delete Book");
+
+        addButton.addActionListener((ActionEvent e) -> {
+            String title = JOptionPane.showInputDialog("Enter Book Title:");
+            String author = JOptionPane.showInputDialog("Enter Book Author:");
+            double price = Double.parseDouble(JOptionPane.showInputDialog("Enter Book Price:"));
+            int quantity = Integer.parseInt(JOptionPane.showInputDialog("Enter Book Quantity:"));
+            Book book = new Book(books.size() + 1, title, author, price, quantity);
+            books.add(book);
+            bookListModel.addElement(book.getTitle() + " by " + book.getAuthor());
+        });
+
+        deleteButton.addActionListener((ActionEvent e) -> {
+            int selectedIndex = bookList.getSelectedIndex();
+            if (selectedIndex != -1) {
+                books.remove(selectedIndex);
+                bookListModel.remove(selectedIndex);
+            }
+        });
+
+        buttonPanel.add(addButton);
+        buttonPanel.add(deleteButton);
+
+        panel.add(new JScrollPane(bookList), BorderLayout.CENTER);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+}
+
