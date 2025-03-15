@@ -1,0 +1,23 @@
+  @ParameterizedTest
+    @ValueSource(strings = {"Java Programming", "Python Basics"})
+    void testParameterizedBookTitle(String title) {
+        boolean found = books.stream().anyMatch(book -> book.title.equals(title));
+        assertTrue(found);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "Java Programming, James Gosling, 500, 10",
+            "Python Basics, Guido van Rossum, 350, 5"
+    })
+    
+    void testParameterizedBookDetails(String title, String author, int pages, int quantity) {
+        boolean found = books.stream().anyMatch(book ->
+                book.title.equals(title) &&
+                        book.author.equals(author) &&
+                        book.pages == pages &&
+                        book.quantity == quantity
+        );
+        assertTrue(found);
+    }
+}
