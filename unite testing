@@ -1,0 +1,118 @@
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // Runs once for all tests
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class) // Orders test execution
+class OnlineBookStoreTest {
+
+    private static BookStore bookStore;
+    private static List<Book> books;
+
+    @BeforeAll
+    static void setupBeforeAll() {
+        System.out.println("Initializing BookStore...");
+        bookStore = new BookStore();
+        books = BookStore.getBooks();
+    }
+
+    @BeforeEach
+    void setupBeforeEach() {
+        books.clear(); // Reset before each test
+        BookStore.addBook("Java Programming", "James Gosling", 500, 10);
+        BookStore.addBook("Python Basics", "Guido van Rossum", 350, 5);
+    }
+
+    @AfterEach
+    void cleanupAfterEach() {
+        System.out.println("Test completed. Resetting BookStore...");
+        books.clear();
+    }
+
+    @AfterAll
+    static void cleanupAfterAll() {
+        System.out.println("All tests completed. Cleaning up resources...");
+        bookStore = null;
+    }
+
+    @Test
+    void testAddBook() {
+        BookStore.addBook("Effective Java", "Joshua Bloch", 450, 7);
+        assertEquals(3, books.size());
+        assertNotNull(books.get(2));
+    }
+
+    @Test
+    void testDeleteBook() {
+        BookStore.deleteBook(0);
+        assertEquals(1, books.size());
+        assertNotEquals("Java Programming", books.get(0).title);
+    }
+
+    @Test
+    void testEditBook() {
+        BookStore.editBook(0, "Advanced Java", "Herbert Schildt", 600, 8);
+        Book editedBook = books.get(0);
+        assertEquals("Advanced Java", editedBook.title);
+        assertEquals("Herbert Schildt", editedBook.author);
+        assertEquals(600, editedBook.pages);
+        assertEquals(8, editedBook.quantity);
+    }
+
+    @Test
+    void testBorrowBook() {
+        Book book = books.get(0);
+        int initialQuantity = book.quantity;
+        book.quantity--;
+        assertEquals(initialQuantity - 1, book.quantity);
+        assertTrue(book.quantity >= 0);
+    }
+
+    @Test
+    void testBorrowBookOutOfStock() {
+        books.get(1).quantity = 0; // Set book quantity to zero
+        assertFalse(books.get(1).quantity > 0, "Book should be out of stock");
+    }
+
+    @Test
+    void testAssertNullAndNotNull() {
+        assertNotNull(books.get(0));
+        books.clear();
+        assertNull(books.isEmpty() ? null : books.get(0));
+    }
+
+    @Test
+    void testAssertSameAndNotSame() {
+        Book book1 = new Book("Java", "Author1", 300, 10);
+        Book book2 = new Book("Java", "Author1", 300, 10);
+        Book book3 = book1;
+
+        assertSame(book1, book3);  // Both references should point to the same object
+        assertNotSame(book1, book2); // Different instances, even if same values
+    }
+
+    @Test
+    void testAssertThrows() {
+        assertThrows(NumberFormatException.class, () -> {
+            Integer.parseInt("InvalidNumber");
+        });
+    }
+
+    @Test
+    void testAssertDoesNotThrow() {
+        assertDoesNotThrow(() -> Integer.parseInt("123"));
+    }
+
+    @Test
+    void testAssertLinesMatch() {
+        List<String> expectedLines = List.of("Java Programming | James Gosling | Pages: 500 | Qty: 10");
+        List<String> actualLines = new ArrayList<>();
+        actualLines.add(books.get(0).toString());
+
+        assertLinesMatch(expectedLines, actualLines);
+    }
